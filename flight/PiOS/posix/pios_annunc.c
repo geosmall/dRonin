@@ -30,6 +30,8 @@
 #include "openpilot.h"
 #include "hwsimulation.h"
 
+#include "pios_bone_gpio.h"
+
 #if defined(PIOS_INCLUDE_ANNUNC)
 
 /* Private Function Prototypes */
@@ -88,6 +90,25 @@ bool PIOS_ANNUNC_GetStatus(uint32_t led)
 void PIOS_ANNUNC_On(uint32_t led)
 {
 	set_led(led, 1);
+#ifdef __linux__
+	if (use_bone_gpio) {
+#if defined(PIOS_INCLUDE_BLUE)
+		if (led == PIOS_LED_HEARTBEAT)
+			boneGpioWrite(BLUE_GRN_LED, BONE_GPIO_HIGH);
+
+		if (led == PIOS_LED_ALARM)
+			boneGpioWrite(BLUE_RED_LED, BONE_GPIO_HIGH);
+#elif defined(PIOS_INCLUDE_POCKET)
+		if (led == PIOS_LED_HEARTBEAT)
+			boneGpioWrite(POCKET_BLUE_LED, BONE_GPIO_HIGH);
+
+		if (led == PIOS_LED_ALARM)
+			boneGpioWrite(POCKET_RED_LED,  BONE_GPIO_HIGH);
+#else
+		#error "No Bone Target Defined!!"
+#endif
+	}
+#endif
 }
 
 
@@ -98,6 +119,25 @@ void PIOS_ANNUNC_On(uint32_t led)
 void PIOS_ANNUNC_Off(uint32_t led)
 {
 	set_led(led, 0);
+#ifdef __linux__
+	if (use_bone_gpio) {
+#if defined(PIOS_INCLUDE_BLUE)
+		if (led == PIOS_LED_HEARTBEAT)
+			boneGpioWrite(BLUE_GRN_LED, BONE_GPIO_LOW);
+
+		if (led == PIOS_LED_ALARM)
+			boneGpioWrite(BLUE_RED_LED, BONE_GPIO_LOW);
+#elif defined(PIOS_INCLUDE_POCKET)
+		if (led == PIOS_LED_HEARTBEAT)
+			boneGpioWrite(POCKET_BLUE_LED, BONE_GPIO_LOW);
+
+		if (led == PIOS_LED_ALARM)
+			boneGpioWrite(POCKET_RED_LED,  BONE_GPIO_LOW);
+#else
+		#error "No Bone Target Defined!!"
+#endif
+	}
+#endif
 }
 
 

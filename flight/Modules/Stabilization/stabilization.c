@@ -821,7 +821,9 @@ static void stabilizationTask(void* parameters)
 			dT_measured += dT;
 		} else if (iteration == 2100) {
 			dT_measured /= 2000;
-
+#ifdef __linux__
+		printf("stabilization: dT_measured = %f, dT_expected = %f\n", dT_measured, dT_expected);
+#endif
 			/* Other modules-- attitude, etc, -- rely on us having
 			 * done this test and set an alarm here.  Do not remove
 			 * without verifying those places

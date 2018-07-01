@@ -88,6 +88,8 @@ static pios_spi_t spi_devs[16];
 #include "pios_flyingpio.h"
 
 static HwSharedPortTypesOptions rcvr_proto = HWSHARED_PORTTYPES_SBUS;
+
+#include "pios_mpu_priv.h"
 #endif
 
 #ifdef PIOS_INCLUDE_I2C
@@ -100,6 +102,14 @@ pios_i2c_t external_i2c_adapter_id;
 
 #include "pios_px4flow_priv.h"
 #include "pios_hmc5883_priv.h"
+#endif
+
+#include "pios_bone.h"
+#include "pios_bone_adc.h"
+#include "pios_bone_gpio.h"
+
+#if defined(PIOS_INCLUDE_BONE)
+static bool use_mpu_mag = true;
 #endif
 
 int orig_stdout;
@@ -118,6 +128,7 @@ static void Usage(char *cmdName) {
 		"\t-!\t\t\tUse a fake clock timebase gated by gcs/simsensors\n"
 		"\t-l log\t\t\tWrites simulation data to a log\n"
 		"\t-g port\t\t\tStarts FlightGear driver on port\n"
+		"\t-b\t\t\tUse Beagle BOne Drivers\n"
 #ifdef PIOS_INCLUDE_SIMSENSORS_YASIM
 		"\t-y\t\t\tUse an external simulator (drhil yasim)\n"
 #endif
@@ -132,13 +143,13 @@ static void Usage(char *cmdName) {
 		"\t\t\t\t\tsrxl ibus\n\n"
 		"\t-s spibase\t\tConfigures a SPI interface on the base path\n"
 		"\t-d drvname:bus:id\tStarts driver drvname on bus/id\n"
-		"\t\t\tAvailable drivers: bmm150 bmx055 flyingpio ms5611\n\n"
+		"\t\t\tAvailable drivers: bmm150 bmx055 flyingpio ms5611 mpu9250\n\n"
 #endif
 #ifdef PIOS_INCLUDE_I2C
 		"\t-m orientation\t\tSets the orientation of an external mag\n"
 		"\t-I i2cdev\t\tConfigures an I2C interface on i2cdev\n"
 		"\t-i drvname:bus\t\tStarts a driver instance on bus\n"
-		"\t\t\tAvailable drivers: px4flow hmc5883 hmc5983 bmp280 ms5611\n\n"
+		"\t\t\tAvailable drivers: px4flow hmc5883 hmc5983 bmp280 ms5611 mpu9250\n\n"
 #endif
 		"\t-c confflash\t\tspecify a filename to store config flash\n"
 		"",
@@ -300,6 +311,22 @@ static int handle_i2c_device(const char *optarg) {
 					i2c_devs + bus_num, NULL)) {
 			goto fail;
 		}
+	} else if (!strcmp(drv_name, "mpu9250")) {
+		struct pios_mpu_cfg *mpu_cfg;
+		pios_mpu_dev_t dev;
+
+		mpu_cfg = PIOS_malloc(sizeof(*mpu_cfg));
+		bzero(mpu_cfg, sizeof(*mpu_cfg));
+
+		mpu_cfg->default_samplerate = 500;
+
+#ifdef PIOS_INCLUDE_MPU_MAG
+		mpu_cfg->use_internal_mag = use_mpu_mag;
+#endif // PIOS_INCLUDE_MPU_MAG
+
+		int ret = PIOS_MPU_I2C_Init(&dev, *(i2c_devs + bus_num), mpu_cfg);
+
+		if (ret) goto fail;
 	} else {
 		goto fail;
 	}
@@ -423,6 +450,22 @@ static int handle_device(const char *optarg) {
 				(uintptr_t) dev)) {
 			PIOS_Assert(0);
 		}
+	} else if (!strcmp(drv_name, "mpu9250")) {
+		struct pios_mpu_cfg *mpu_cfg;
+		pios_mpu_dev_t dev;
+
+		mpu_cfg = PIOS_malloc(sizeof(*mpu_cfg));
+		bzero(mpu_cfg, sizeof(*mpu_cfg));
+
+		mpu_cfg->default_samplerate = 1000;
+
+#ifdef PIOS_INCLUDE_MPU_MAG
+		mpu_cfg->use_internal_mag = use_mpu_mag;
+#endif // PIOS_INCLUDE_MPU_MAG
+
+		int ret = PIOS_MPU_SPI_Init(&dev, spi_devs[bus_num], dev_num, mpu_cfg);
+
+		if (ret) goto fail;
 	} else {
 		goto fail;
 	}
@@ -496,7 +539,7 @@ void PIOS_SYS_Args(int argc, char *argv[]) {
 
 	bool hw_argseen = true;
 
-	while ((opt = getopt(argc, argv, "!yfrx:g:l:s:d:S:I:i:m:c:p:")) != -1) {
+	while ((opt = getopt(argc, argv, "!yfrx:g:l:s:d:S:I:i:m:c:p:b")) != -1) {
 		switch (opt) {
 #ifdef PIOS_INCLUDE_SIMSENSORS_YASIM
 			case 'y':
@@ -543,7 +586,7 @@ void PIOS_SYS_Args(int argc, char *argv[]) {
 			}
 			case 'S':
 				if (handle_serial_device(optarg)) {
-					printf("Couldn't init device\n");
+					printf("Couldn't init serial device\n");
 					exit(1);
 				}
 				hw_argseen = false;
@@ -564,6 +607,9 @@ void PIOS_SYS_Args(int argc, char *argv[]) {
 					printf("Invalid mag orientation\n");
 					exit(1);
 				}
+
+				use_mpu_mag = false;
+
 				break;
 			}
 			case 'I':
@@ -590,7 +636,7 @@ void PIOS_SYS_Args(int argc, char *argv[]) {
 #ifdef PIOS_INCLUDE_SPI
 			case 'd':
 				if (handle_device(optarg)) {
-					printf("Couldn't init device\n");
+					printf("Couldn't init spi device\n");
 					exit(1);
 				}
 				break;
@@ -654,7 +700,39 @@ void PIOS_SYS_Args(int argc, char *argv[]) {
 				break;
 			}
 #endif
+			case 'b':
+#ifdef __linux__
+				boneGpioInit();
+#if defined(PIOS_INCLUDE_BLUE)
+				boneGpioPinMode(BLUE_RED_LED, BONE_GPIO_OUTPUT);
+				boneGpioPinMode(BLUE_GRN_LED, BONE_GPIO_OUTPUT);
 
+				boneGpioWrite(BLUE_RED_LED, BONE_GPIO_LOW);
+				boneGpioWrite(BLUE_GRN_LED, BONE_GPIO_LOW);
+#elif defined(PIOS_INCLUDE_POCKET)
+				boneGpioPinMode(POCKET_RED_LED,  BONE_GPIO_OUTPUT);
+				boneGpioPinMode(POCKET_BLUE_LED, BONE_GPIO_OUTPUT);
+
+				boneGpioWrite(POCKET_RED_LED,  BONE_GPIO_LOW);
+				boneGpioWrite(POCKET_BLUE_LED, BONE_GPIO_LOW);
+#else
+				#error "No Bone Target Defined!!"
+#endif
+				use_bone_gpio = true;
+
+				boneAdcInit();
+
+				pios_bone_dev_t dev;
+
+				PIOS_Bone_Init(&dev);
+
+				uintptr_t adc_id;
+
+				if (PIOS_ADC_Init(&adc_id, &pios_bone_adc_driver, (uintptr_t)dev)) {
+					PIOS_Assert(0);
+				}
+#endif
+				break;
 			default:
 				Usage(argv[0]);
 				break;

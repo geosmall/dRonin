@@ -192,6 +192,11 @@ SRC += pios_sys.c
 SRC += pios_tcp.c
 SRC += pios_wdg.c
 
+SRC += pios_bone.c
+SRC += pios_bone_adc.c
+SRC += pios_bone_gpio.c
+SRC += pios_bone_mpu.c
+
 # List C source files here which must be compiled in ARM-Mode (no -mthumb).
 # use file-extension c for "c-only"-files
 ## just for testing, timer.c could be compiled in thumb-mode too
