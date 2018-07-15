@@ -1,14 +1,3 @@
-/**
- ******************************************************************************
- * @file       pios_mpu.c
- * @author     dRonin, http://dRonin.org/, Copyright (C) 2016
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2013
- * @addtogroup PIOS PIOS Core hardware abstraction layer
- * @{
- * @addtogroup PIOS_MPU Invensense MPU Functions
- * @{
- * @brief Common driver for Invensense MPU-xxx0 6/9-axis IMUs
- *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +11,11 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, see <http://www.gnu.org/licenses/>
- *
- * Additional note on redistribution: The copyright and license notices above
- * must be maintained in each individual source file that is a derivative work
- * of this source file; otherwise redistribution is prohibited.
  */
+ 
+#include "pios_config.h"
+
+#if defined(PIOS_INCLUDE_BONE)
 
 #include <unistd.h>
 
@@ -963,7 +952,10 @@ static void PIOS_MPU_Task(void *parameters)
 		else
 			usleep(1425);  // external mag sleep time
 #elif defined(PIOS_INCLUDE_POCKET)
-		PIOS_Thread_Sleep(1);
+		if (mpu_dev->use_mag == true)
+			usleep(780);  // internal mag sleep time
+		else
+			usleep(780);  // external mag sleep time
 #else
 	#error "No Bone Target Defined!!"
 #endif
@@ -1193,9 +1185,7 @@ static void PIOS_MPU_Task(void *parameters)
 	}
 }
 
-#endif // PIOS_INCLUDE_MPU
+#endif
 
-/**
- * @}
- * @}
- */
+#endif
+

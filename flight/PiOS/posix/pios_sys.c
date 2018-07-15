@@ -107,6 +107,8 @@ pios_i2c_t external_i2c_adapter_id;
 #include "pios_bone.h"
 #include "pios_bone_adc.h"
 #include "pios_bone_gpio.h"
+#include "pios_bone_pruInput.h"
+#include "pios_bone_pruOutput.h"
 
 #if defined(PIOS_INCLUDE_BONE)
 static bool use_mpu_mag = true;
@@ -722,6 +724,8 @@ void PIOS_SYS_Args(int argc, char *argv[]) {
 
 				boneAdcInit();
 
+				pios_bone_rcOutput_init();
+
 				pios_bone_dev_t dev;
 
 				PIOS_Bone_Init(&dev);
@@ -731,6 +735,17 @@ void PIOS_SYS_Args(int argc, char *argv[]) {
 				if (PIOS_ADC_Init(&adc_id, &pios_bone_adc_driver, (uintptr_t)dev)) {
 					PIOS_Assert(0);
 				}
+
+				PIOS_Modules_Enable(PIOS_MODULE_BONEPRURCINPUT);
+
+				uintptr_t rcvr_id;
+
+				if (PIOS_RCVR_Init(&rcvr_id, &pios_bone_rcvr_driver, (uintptr_t) dev)) {
+					PIOS_Assert(0);
+				}
+
+				// Pretend what we get is PWM
+				PIOS_HAL_SetReceiver(MANUALCONTROLSETTINGS_CHANNELGROUPS_PWM, rcvr_id);
 #endif
 				break;
 			default:

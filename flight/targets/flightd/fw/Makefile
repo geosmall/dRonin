@@ -116,7 +116,7 @@ RTOSDIR = $(APPLIBDIR)/FreeRTOS
 RTOSSRCDIR = $(RTOSDIR)/Source
 RTOSINCDIR = $(RTOSSRCDIR)/include
 DOXYGENDIR = ../Doc/Doxygen
-
+PIOSBEAGLEBONE = $(PIOSPOSIX)/beaglebone
 SRC = 
 
 # List C source files here. (C dependencies are automatically generated.)
@@ -192,10 +192,13 @@ SRC += pios_sys.c
 SRC += pios_tcp.c
 SRC += pios_wdg.c
 
-SRC += pios_bone.c
-SRC += pios_bone_adc.c
-SRC += pios_bone_gpio.c
-SRC += pios_bone_mpu.c
+SRC += $(PIOSBEAGLEBONE)/pios_bone.c
+SRC += $(PIOSBEAGLEBONE)/pios_bone_adc.c
+SRC += $(PIOSBEAGLEBONE)/pios_bone_gpio.c
+SRC += $(PIOSBEAGLEBONE)/pios_bone_mpu.c
+SRC += $(PIOSBEAGLEBONE)/pios_bone_pruInput.c
+SRC += $(PIOSBEAGLEBONE)/pios_bone_pruOutput.c
+SRC += $(PIOSBEAGLEBONE)/pios_sbus.c
 
 # List C source files here which must be compiled in ARM-Mode (no -mthumb).
 # use file-extension c for "c-only"-files
@@ -237,6 +240,8 @@ EXTRAINCDIRS  += $(PIOSPOSIX)
 EXTRAINCDIRS  += $(RTOSINCDIR)
 #EXTRAINCDIRS  += $(APPLIBDIR)
 EXTRAINCDIRS  += $(RTOSSRCDIR)/portable/GCC/Posix
+
+EXTRAINCDIRS += $(ROOT_DIR)/flight/PiOS/posix/beaglebone/inc
 
 EXTRAINCDIRS += ${foreach MOD, ${OPTMODULES} ${MODULES}, $(OPMODULEDIR)/${MOD}/inc} ${OPMODULEDIR}/System/inc
 

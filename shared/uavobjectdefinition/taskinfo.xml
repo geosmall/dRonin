@@ -41,6 +41,7 @@
         <elementname>MSPUAVOBridge</elementname>
         <elementname>UAVOCrossfireTelemetry</elementname>
         <elementname>Loadable</elementname>
+	<elementname>BonePruRcInput</elementname>
       </elementnames>
     </field>
     <field defaultvalue="FALSE" name="Running" type="enum" units="bool">
@@ -79,6 +80,7 @@
         <elementname>MSPUAVOBridge</elementname>
         <elementname>UAVOCrossfireTelemetry</elementname>
         <elementname>Loadable</elementname>
+	<elementname>BonePruRcInput</elementname>
       </elementnames>
       <options>
         <option>FALSE</option>
@@ -121,6 +123,7 @@
         <elementname>MSPUAVOBridge</elementname>
         <elementname>UAVOCrossfireTelemetry</elementname>
         <elementname>Loadable</elementname>
+	<elementname>BonePruRcInput</elementname>
       </elementnames>
     </field>
   </object>
