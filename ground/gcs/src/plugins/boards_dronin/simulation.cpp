@@ -43,10 +43,13 @@ Simulation::Simulation(void)
     /* For now assuming flyingpio bank configuration.  This may not hold
      * true in the long term...
      */
-    channelBanks.resize(3);
-    channelBanks[0] = QVector<int>() << 1;
-    channelBanks[1] = QVector<int>() << 2;
-    channelBanks[2] = QVector<int>() << 3;
+    channelBanks.resize(6);
+    channelBanks[0] = QVector<int>() << 1 << 2;
+    channelBanks[1] = QVector<int>() << 3;
+    channelBanks[2] = QVector<int>() << 4;
+	channelBanks[3] = QVector<int>() << 5;
+	channelBanks[4] = QVector<int>() << 6;
+	channelBanks[5] = QVector<int>() << 7 << 8;
 }
 
 Simulation::~Simulation()

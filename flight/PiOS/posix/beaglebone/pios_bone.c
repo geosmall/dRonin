@@ -143,26 +143,27 @@ static int PIOS_Bone_ActuatorSetMode(const uint16_t *out_rate, const int banks, 
 
 		else rate = out_rate[bank];
 
-#if defined(PIOS_INCLUDE_BLUE)
-		if (bank == 0) {
-			pios_bone_rcOutput_set_freq(0b00001111, rate);
-		}
-		else if (bank == 1) {
-			pios_bone_rcOutput_set_freq(0b00110000, rate);
-		}
-		else {
-			pios_bone_rcOutput_set_freq(0b11000000, rate);
-		}
-#elif defined(PIOS_INCLUDE_POCKET)
-		if (bank == 0) {
+		if      (bank == 0) {
 			pios_bone_rcOutput_set_freq(0b00000011, rate);
 		}
 		else if (bank == 1) {
-			pios_bone_rcOutput_set_freq(0b00001100, rate);
+			pios_bone_rcOutput_set_freq(0b00000100, rate);
 		}
-		else {
-			pios_bone_rcOutput_set_freq(0b00110000, rate);
+		else if (bank == 2) {
+			pios_bone_rcOutput_set_freq(0b00001000, rate);
 		}
+		else if (bank == 3) {
+			pios_bone_rcOutput_set_freq(0b00010000, rate);
+		}
+                else if (bank == 4) {
+                        pios_bone_rcOutput_set_freq(0b00100000, rate);
+		}
+#if defined(PIOS_INCLUDE_BLUE)
+		else if (bank == 5) {
+			pios_bone_rcOutput_set_freq(0b11000000, rate);
+		}
+#elif defined(PIOS_INCLUDE_POCKET
+
 #else
 	#error "No Bone Target Defined!!"
 #endif
