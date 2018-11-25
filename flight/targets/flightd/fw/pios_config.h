@@ -33,6 +33,7 @@
 
 /* Major features */
 #define STABILIZATION_LQG
+#define OPENAEROVTOL
 #define TRIFLIGHT
 
 /* Enable/Disable PiOS Modules */
@@ -110,8 +111,8 @@
 #define PIOS_HMC5883_NO_EXTI
 #define PIOS_INCLUDE_HMC5983
 
-//#define PIOS_INCLUDE_BONE
-//#define PIOS_INCLUDE_BLUE
+#define PIOS_INCLUDE_BONE
+#define PIOS_INCLUDE_BLUE
 //#define PIOS_INCLUDE_POCKET
 #define PIOS_INCLUDE_MPU
 #define PIOS_INCLUDE_MPU_MAG

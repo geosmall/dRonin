@@ -96,6 +96,7 @@ OPTMODULES += GPS
 OPTMODULES += UAVOLighttelemetryBridge
 OPTMODULES += UAVOMSPBridge
 
+OPTMODULES += OpenAeroVtol
 OPTMODULES += Triflight
 
 # Paths
