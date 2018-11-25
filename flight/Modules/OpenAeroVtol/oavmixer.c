@@ -1087,6 +1087,7 @@ static MixerSettingsMixer1TypeOptions get_mix_type(MixerSettingsData *mixerSetti
 	default:
 		// We can never get here unless there are mixer channels not handled in the above. Fail out.
 		PIOS_Assert(0);
+		return mixerSettings->Mixer1Type;  // Can't get here, but makes compiler happy
 	}
 }
 
