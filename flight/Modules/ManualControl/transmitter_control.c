@@ -61,7 +61,7 @@
 //these specify how far outside the "permitted range" throttle and other channels
 //can go.  e.g. if range is 1000..2000us, values under 750us or over 2250us
 //result in failsafe.
-#define CONNECTION_OFFSET          250
+#define CONNECTION_OFFSET          150
 
 #define RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP 12
 #define RCVR_ACTIVITY_MONITOR_MIN_RANGE 20
