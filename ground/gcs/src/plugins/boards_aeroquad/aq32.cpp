@@ -254,29 +254,7 @@ Core::IBoardType::InputType AQ32::getInputType()
 
 int AQ32::queryMaxGyroRate()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    UAVObjectManager *uavoManager = pm->getObject<UAVObjectManager>();
-    HwAQ32 *hwAQ32 = HwAQ32::GetInstance(uavoManager);
-    Q_ASSERT(hwAQ32);
-    if (!hwAQ32)
-        return 0;
-
-    HwAQ32::DataFields settings = hwAQ32->getData();
-
-    switch (settings.GyroRange) {
-    case HwAQ32::GYRORANGE_250:
-        return 250;
-    case HwAQ32::GYRORANGE_500:
-        return 500;
-    case HwAQ32::GYRORANGE_1000:
-        return 1000;
-    case HwAQ32::GYRORANGE_2000:
-        return 2000;
-    default:
-        break;
-    }
-
-    return 500;
+   return 2000;
 }
 
 QStringList AQ32::getAdcNames()

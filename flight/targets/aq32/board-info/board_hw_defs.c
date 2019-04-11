@@ -1448,8 +1448,12 @@ static const struct pios_exti_cfg pios_exti_mpu_cfg __exti_config = {
 
 static struct pios_mpu_cfg pios_mpu_cfg = {
 	.exti_cfg            = &pios_exti_mpu_cfg,
-	.default_samplerate  = 1000,
-	.orientation         = PIOS_MPU_TOP_270DEG
+	.orientation         = PIOS_MPU_TOP_270DEG,
+	.accel_bandwidth     = 184,  // This value has no affect on MPU6000
+	.gyro_bandwidth      = 256,  // DLPF = 256 give internal MPU6000 sample rate of 8 kHz
+	.default_samplerate  = 2000,
+	.accel_range         = PIOS_MPU_SCALE_8G,
+	.gyro_range          = PIOS_MPU_SCALE_2000_DEG,
 };
 #endif /* PIOS_INCLUDE_MPU */
 

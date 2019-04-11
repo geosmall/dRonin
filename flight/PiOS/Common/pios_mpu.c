@@ -38,11 +38,18 @@
 
 #include "pios_mpu_priv.h"
 
-#ifndef PIOS_MPU_SPI_HIGH_SPEED
-#define PIOS_MPU_SPI_HIGH_SPEED              20000000	// should result in 10.5MHz clock on F4 targets like Sparky2
-#endif // PIOS_MPU_SPI_HIGH_SPEED
-#define PIOS_MPU_SPI_LOW_SPEED               300000
+#define PIOS_MPU_SPI_HIGH_SPEED  20000000
+#define PIOS_MPU_SPI_LOW_SPEED     600000
 
+// Examples
+
+// STM32F405
+//   Low   |   High
+//  328125 | 10500000
+
+// STM32F303
+//   Low   |   High
+//  562500 | 18000000
 
 /**
  * WHOAMI ids of each device, must be same length as pios_mpu_type
@@ -321,18 +328,18 @@ static int32_t PIOS_MPU_Config(struct pios_mpu_cfg const *cfg)
 {
 	// Digital low-pass filter and scale
 	// set this before sample rate else sample rate calculation will fail
-	PIOS_MPU_SetGyroBandwidth(184);
-	PIOS_MPU_SetAccelBandwidth(184);
+	PIOS_MPU_SetGyroBandwidth(cfg->gyro_bandwidth);
+	PIOS_MPU_SetAccelBandwidth(cfg->accel_bandwidth);
 
 	// Sample rate
-	if (PIOS_MPU_SetSampleRate(cfg->default_samplerate) != 0)
+	if (PIOS_MPU_SetSampleRate(cfg->default_samplerate, cfg->gyro_bandwidth) != 0)
 		return -PIOS_MPU_ERROR_SAMPLERATE;
 
 	// Set the gyro scale
-	PIOS_MPU_SetGyroRange(PIOS_MPU_SCALE_1000_DEG);
+	PIOS_MPU_SetGyroRange(cfg->gyro_range);
 
 	// Set the accel scale
-	PIOS_MPU_SetAccelRange(PIOS_MPU_SCALE_8G);
+	PIOS_MPU_SetAccelRange(cfg->accel_range);
 
 	// Interrupt configuration
 	PIOS_MPU_WriteReg(PIOS_MPU_INT_CFG_REG, PIOS_MPU_INT_CLR_ANYRD);
@@ -654,8 +661,10 @@ void PIOS_MPU_SetGyroBandwidth(uint16_t bandwidth)
 			filter = PIOS_MPU60X0_GYRO_LOWPASS_42_HZ;
 		else if (bandwidth <= 98)
 			filter = PIOS_MPU60X0_GYRO_LOWPASS_98_HZ;
-		else
+		else if (bandwidth <=188)
 			filter = PIOS_MPU60X0_GYRO_LOWPASS_188_HZ;
+		else
+			filter = PIOS_MPU60X0_GYRO_LOWPASS_256_HZ;
 	} else {
 		if (bandwidth <= 5)
 			filter = PIOS_ICM206XX_GYRO_LOWPASS_5_HZ;
@@ -726,10 +735,15 @@ void PIOS_MPU_SetAccelBandwidth(uint16_t bandwidth)
 	PIOS_MPU_WriteReg(PIOS_MPU_ACCEL_CFG2_REG, filter);
 }
 
-int32_t PIOS_MPU_SetSampleRate(uint16_t samplerate_hz)
+int32_t PIOS_MPU_SetSampleRate(uint16_t samplerate_hz, uint16_t gyro_bandwidth)
 {
 	// TODO: think about supporting >1 khz, aliasing/noise issues though..
-	uint16_t internal_rate = 1000;
+	uint16_t internal_rate;
+	
+	if (gyro_bandwidth < 256)
+		internal_rate = 1000;
+	else
+		internal_rate = 8000;
 
 	// limit samplerate to filter frequency
 	if (samplerate_hz > internal_rate)

@@ -393,53 +393,6 @@ void PIOS_Board_Init(void) {
 	pios_mpu_dev_t mpu_dev = NULL;
 	if (PIOS_MPU_SPI_Init(&mpu_dev, pios_spi_internal_id, 0, &pios_mpu_cfg) != 0)
 		PIOS_HAL_CriticalError(PIOS_LED_ALARM, PIOS_HAL_PANIC_IMU);
-
-	HwAQ32GyroRangeOptions hw_gyro_range;
-	HwAQ32GyroRangeGet(&hw_gyro_range);
-	switch(hw_gyro_range) {
-		case HWAQ32_GYRORANGE_250:
-			PIOS_MPU_SetGyroRange(PIOS_MPU_SCALE_250_DEG);
-			break;
-		case HWAQ32_GYRORANGE_500:
-			PIOS_MPU_SetGyroRange(PIOS_MPU_SCALE_500_DEG);
-			break;
-		case HWAQ32_GYRORANGE_1000:
-			PIOS_MPU_SetGyroRange(PIOS_MPU_SCALE_1000_DEG);
-			break;
-		case HWAQ32_GYRORANGE_2000:
-			PIOS_MPU_SetGyroRange(PIOS_MPU_SCALE_2000_DEG);
-			break;
-	}
-
-	HwAQ32AccelRangeOptions hw_accel_range;
-	HwAQ32AccelRangeGet(&hw_accel_range);
-	switch(hw_accel_range) {
-		case HWAQ32_ACCELRANGE_2G:
-			PIOS_MPU_SetAccelRange(PIOS_MPU_SCALE_2G);
-			break;
-		case HWAQ32_ACCELRANGE_4G:
-			PIOS_MPU_SetAccelRange(PIOS_MPU_SCALE_4G);
-			break;
-		case HWAQ32_ACCELRANGE_8G:
-			PIOS_MPU_SetAccelRange(PIOS_MPU_SCALE_8G);
-			break;
-		case HWAQ32_ACCELRANGE_16G:
-			PIOS_MPU_SetAccelRange(PIOS_MPU_SCALE_16G);
-			break;
-	}
-
-	// the filter has to be set before rate else divisor calculation will fail
-	HwAQ32MPU6000DLPFOptions hw_mpu_dlpf;
-	HwAQ32MPU6000DLPFGet(&hw_mpu_dlpf);
-	uint16_t bandwidth = \
-		(hw_mpu_dlpf == HWAQ32_MPU6000DLPF_188) ? 188 : \
-		(hw_mpu_dlpf == HWAQ32_MPU6000DLPF_98)  ? 98  : \
-		(hw_mpu_dlpf == HWAQ32_MPU6000DLPF_42)  ? 42  : \
-		(hw_mpu_dlpf == HWAQ32_MPU6000DLPF_20)  ? 20  : \
-		(hw_mpu_dlpf == HWAQ32_MPU6000DLPF_10)  ? 10  : \
-		(hw_mpu_dlpf == HWAQ32_MPU6000DLPF_5)   ? 5   : \
-		188;
-	PIOS_MPU_SetGyroBandwidth(bandwidth);
 #endif
 
 #if defined(PIOS_INCLUDE_I2C)

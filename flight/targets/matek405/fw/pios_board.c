@@ -390,20 +390,6 @@ void PIOS_Board_Init(void) {
 	pios_mpu_dev_t mpu_dev = NULL;
 	if (PIOS_MPU_SPI_Init(&mpu_dev, pios_spi_gyro_id, 0, &pios_mpu_cfg) != 0)
 		PIOS_HAL_CriticalError(PIOS_LED_ALARM, PIOS_HAL_PANIC_IMU);
-
-	PIOS_MPU_SetGyroRange(PIOS_MPU_SCALE_2000_DEG);
-	
-	PIOS_MPU_SetAccelRange(PIOS_MPU_SCALE_8G);
-	
-	// Per pios_mpu.c, a bandwidth value of 188 will:
-	//   Set the MPU60X0 low pass filter to 188 Hz
-	//   Set the ICM206XX gyro low pass filter to 176 Hz
-	PIOS_MPU_SetGyroBandwidth(188);
-
-	// Per pios_mpu.c, a bandwidth value of 99 will:
-	//   Do nothing for the MPU60X0
-	//   Set the ICM206XX accel low pass filter to 99 Hz
-	PIOS_MPU_SetAccelBandwidth(99);
 #endif
 
 #if defined(PIOS_INCLUDE_I2C)

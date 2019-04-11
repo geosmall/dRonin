@@ -54,7 +54,7 @@ enum pios_mpu_type {
 	PIOS_MPU6500,   /**< MPU-6500, SPI/I2C */
 	PIOS_MPU9150,   /**< MPU-9150, contains MPU-6050+AK8975C */
 	PIOS_MPU9250,   /**< MPU-9250, contains MPU-6500+AK8963 */
-	PIOS_ICM20608G, /**<ICM-20608-G, SPI/I2C */
+	PIOS_ICM20608G, /**< ICM-20608-G, SPI/I2C */
 	PIOS_ICM20602,  /**< ICM-20602,   SPI/I2C */
 	PIOS_ICM20689,  /**< ICM-20689,   SPI/I2C */
 	PIOS_MPU_NUM    /**< Number of elements */
@@ -88,7 +88,7 @@ enum pios_icm206xx_gyro_filter {
 	PIOS_ICM206XX_GYRO_LOWPASS_20_HZ   = 0x04,
 	PIOS_ICM206XX_GYRO_LOWPASS_10_HZ   = 0x05,
 	PIOS_ICM206XX_GYRO_LOWPASS_5_HZ    = 0x06,
-	PIOS_ICM206XX_GYRO_LOWPASS_3281_HZ = 0x07 // 8KHz sample mode
+	PIOS_ICM206XX_GYRO_LOWPASS_3281_HZ = 0x07  // 8KHz sample mode
 };
 
 enum pios_mpu6500_accel_filter {
@@ -138,9 +138,12 @@ enum pios_mpu_orientation { // clockwise rotation from board forward
 
 struct pios_mpu_cfg {
 	const struct pios_exti_cfg *exti_cfg; /* Pointer to the EXTI configuration */
-
-	uint16_t default_samplerate;
 	enum pios_mpu_orientation orientation;
+	uint16_t accel_bandwidth;
+	uint16_t gyro_bandwidth;
+	uint16_t default_samplerate;
+	enum pios_mpu_accel_range accel_range;
+	enum pios_mpu_gyro_range gyro_range;
 	bool skip_startup_irq_check;
 #ifdef PIOS_INCLUDE_MPU_MAG
 	bool use_internal_mag;		/* Flag to indicate whether or not to use the internal mag on MPU9x50 devices */
@@ -169,7 +172,7 @@ int32_t PIOS_MPU_SetAccelRange(enum pios_mpu_accel_range range);
  * Set the sample rate in Hz by determining the nearest divisor
  * @param[in] sample rate in Hz
  */
-int32_t PIOS_MPU_SetSampleRate(uint16_t samplerate_hz);
+int32_t PIOS_MPU_SetSampleRate(uint16_t samplerate_hz, uint16_t gyro_bandwidth);
 
 /**
  * @brief Sets the bandwidth desired from the gyro.
